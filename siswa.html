@@ -2416,6 +2416,40 @@ function runRelax(){
 })();
 </script>
 <!-- ═══════════ END FIREBASE ═══════════ -->
+<!-- ═══════════════════════════════════════════════
+     TOMBOL KELUAR + UPLOAD KK
+     ═══════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script>
+(function(){
+  // ═══ 1. CEK LOGIN ═══
+  var s = localStorage.getItem('sattva_session');
+  if(!s){ window.location.href = 'index.html'; return; }
+  var session = {};
+  try{
+    session = JSON.parse(s);
+    if(session.role !== 'siswa'){ window.location.href = 'index.html'; return; }
+  }catch(e){ window.location.href = 'index.html'; return; }
 
+  // ═══ 2. TAMBAH TOMBOL KELUAR DI NAVBAR ═══
+  window.addEventListener('DOMContentLoaded', function(){
+    var navCta = document.querySelector('.nav-cta');
+    if(navCta && navCta.parentNode && !document.getElementById('btnLogout')){
+      var logoutBtn = document.createElement('a');
+      logoutBtn.id = 'btnLogout';
+      logoutBtn.className = 'nav-cta';
+      logoutBtn.style.cssText = 'background:linear-gradient(135deg,#c44536,#991b1b);margin-right:6px;cursor:pointer';
+      logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Keluar';
+      logoutBtn.onclick = function(){
+        if(confirm('Yakin ingin keluar?')){
+          localStorage.removeItem('sattva_session');
+          window.location.href = 'index.html';
+        }
+      };
+      navCta.parentNode.insertBefore(logoutBtn, navCta);
+    }
+  });
+})();
+</script>
 </body>
 </html>
