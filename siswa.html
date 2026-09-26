@@ -2417,7 +2417,7 @@ function runRelax(){
 </script>
 <!-- ═══════════ END FIREBASE ═══════════ -->
 <!-- ═══════════════════════════════════════════════
-     TOMBOL KELUAR + UPLOAD KK
+     PAKET LENGKAP: LOGIN + TOMBOL KELUAR + UPLOAD KK
      ═══════════════════════════════════════════════ -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 <script>
@@ -2431,8 +2431,8 @@ function runRelax(){
     if(session.role !== 'siswa'){ window.location.href = 'index.html'; return; }
   }catch(e){ window.location.href = 'index.html'; return; }
 
-  // ═══ 2. TAMBAH TOMBOL KELUAR DI NAVBAR ═══
   window.addEventListener('DOMContentLoaded', function(){
+    // ═══ 2. TOMBOL KELUAR ═══
     var navCta = document.querySelector('.nav-cta');
     if(navCta && navCta.parentNode && !document.getElementById('btnLogout')){
       var logoutBtn = document.createElement('a');
@@ -2448,7 +2448,141 @@ function runRelax(){
       };
       navCta.parentNode.insertBefore(logoutBtn, navCta);
     }
+
+    // ═══ 3. INJECT SECTION UPLOAD KK ═══
+    if(!document.getElementById('uploadKK')){
+      var kkSection = document.createElement('section');
+      kkSection.id = 'uploadKK';
+      kkSection.className = 'bg-white fade-up';
+      kkSection.innerHTML =
+        '<div class="container">'+
+          '<div class="sec-badge">📁 Upload Berkas</div>'+
+          '<div class="sec-title">Unggah Kartu Keluarga</div>'+
+          '<div class="sec-sub">Unggah scan/foto KK untuk keperluan administrasi BK. Berkas tersimpan aman di Firebase Storage.</div>'+
+          '<div class="grid-2">'+
+            '<div class="glass-card" style="padding:28px">'+
+              '<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:16px">📤 Unggah Berkas KK</h3>'+
+              '<div id="dropZone" style="border:2px dashed #c0d0e8;border-radius:16px;padding:36px 20px;text-align:center;cursor:pointer;transition:all 0.3s;background:#f8fbff">'+
+                '<div style="font-size:3rem;margin-bottom:10px">📄</div>'+
+                '<div style="font-weight:700;color:var(--navy);margin-bottom:4px">Klik atau seret file ke sini</div>'+
+                '<div style="font-size:0.8rem;color:#8a9bb0">Format: JPG, PNG, atau PDF (Maks 5 MB)</div>'+
+                '<input type="file" id="fileKK" accept=".jpg,.jpeg,.png,.pdf" style="display:none">'+
+              '</div>'+
+              '<div id="filePreview" style="margin-top:16px;display:none">'+
+                '<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--soft);border-radius:12px">'+
+                  '<div id="fileIcon" style="font-size:1.8rem">📄</div>'+
+                  '<div style="flex:1"><div id="fileName" style="font-size:0.85rem;font-weight:700"></div><div id="fileSize" style="font-size:0.75rem;color:#8a9bb0"></div></div>'+
+                  '<button onclick="clearFile()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#c44536">×</button>'+
+                '</div>'+
+              '</div>'+
+              '<div class="form-group" style="margin-top:16px"><label>Nama Siswa (sesuai KK)</label><input type="text" id="kkNama" placeholder="Nama lengkap..."></div>'+
+              '<div class="form-row">'+
+                '<div class="form-group"><label>NIS</label><input type="text" id="kkNIS" placeholder="NIS..."></div>'+
+                '<div class="form-group"><label>Kelas</label><input type="text" id="kkKelas" placeholder="XI IPA 2"></div>'+
+              '</div>'+
+              '<div class="form-group"><label>Keterangan (opsional)</label><textarea id="kkKet" placeholder="Untuk pembaruan data siswa..." style="min-height:70px"></textarea></div>'+
+              '<button class="btn btn-primary btn-full" onclick="uploadKK()" id="btnUploadKK"><i class="fas fa-cloud-upload-alt"></i> Unggah Kartu Keluarga</button>'+
+              '<div id="uploadProgress" style="display:none;margin-top:12px">'+
+                '<div style="height:8px;background:#e0e8f2;border-radius:4px;overflow:hidden"><div id="progressBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--blue2));transition:width 0.3s"></div></div>'+
+                '<div id="progressText" style="font-size:0.75rem;color:#6b7a8e;margin-top:6px;text-align:center">0%</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="glass-card" style="padding:28px">'+
+              '<h3 style="font-size:1.1rem;font-weight:700;margin-bottom:16px">📋 Riwayat Unggahan</h3>'+
+              '<div id="riwayatKK" style="max-height:400px;overflow-y:auto"><div style="text-align:center;padding:20px;color:#8a9bb0;font-size:13px">🔄 Memuat...</div></div>'+
+            '</div>'+
+          '</div>'+
+        '</div>';
+
+      // Sisipkan setelah section #mood, atau sebelum #forum
+      var targetSection = document.getElementById('mood') || document.getElementById('forum') || document.querySelector('section');
+      if(targetSection && targetSection.parentNode){
+        targetSection.parentNode.insertBefore(kkSection, targetSection.nextSibling);
+      } else {
+        document.body.insertBefore(kkSection, document.body.firstChild);
+      }
+
+      // Pre-fill dari session
+      if(session.nama) document.getElementById('kkNama').value = session.nama;
+      if(session.nis) document.getElementById('kkNIS').value = session.nis;
+      if(session.kelas) document.getElementById('kkKelas').value = session.kelas;
+
+      // Setup upload
+      setupKKUpload(session);
+    }
   });
+
+  // ═══ 4. LOGIKA UPLOAD KK ═══
+  function setupKKUpload(session){
+    if(typeof firebase === 'undefined' || !firebase.storage){ return; }
+    var storage = firebase.storage();
+    var db = firebase.database();
+    var selectedFile = null;
+    var dz = document.getElementById('dropZone');
+    var fi = document.getElementById('fileKK');
+    if(!dz || !fi) return;
+
+    dz.addEventListener('click',function(){fi.click();});
+    dz.addEventListener('dragover',function(e){e.preventDefault();dz.style.borderColor='#2c6e9e';dz.style.background='#eef4fb';});
+    dz.addEventListener('dragleave',function(){dz.style.borderColor='#c0d0e8';dz.style.background='#f8fbff';});
+    dz.addEventListener('drop',function(e){e.preventDefault();dz.style.borderColor='#c0d0e8';dz.style.background='#f8fbff';if(e.dataTransfer.files.length)handleFile(e.dataTransfer.files[0]);});
+    fi.addEventListener('change',function(){if(fi.files.length)handleFile(fi.files[0]);});
+
+    function handleFile(file){
+      if(file.size>5*1024*1024){toast('File terlalu besar! Maks 5 MB');return;}
+      var allowed=['image/jpeg','image/png','application/pdf'];
+      if(allowed.indexOf(file.type)<0){toast('Format harus JPG, PNG, atau PDF!');return;}
+      selectedFile=file;
+      document.getElementById('filePreview').style.display='block';
+      document.getElementById('fileName').textContent=file.name;
+      document.getElementById('fileSize').textContent=(file.size/1024/1024).toFixed(2)+' MB';
+      document.getElementById('fileIcon').textContent=file.type==='application/pdf'?'📕':'🖼️';
+    }
+
+    window.clearFile=function(){selectedFile=null;document.getElementById('filePreview').style.display='none';document.getElementById('fileKK').value='';};
+    window.uploadKK=function(){
+      if(!selectedFile){toast('Pilih file KK dulu!');return;}
+      var nama=document.getElementById('kkNama').value.trim();
+      var nis=document.getElementById('kkNIS').value.trim();
+      if(!nama||!nis){toast('Isi nama dan NIS dulu!');return;}
+      var btn=document.getElementById('btnUploadKK');
+      btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Mengunggah...';
+      document.getElementById('uploadProgress').style.display='block';
+      var timestamp=Date.now();
+      var filePath='kartu_keluarga/'+nis+'_'+timestamp+'_'+selectedFile.name;
+      var uploadTask=storage.ref(filePath).put(selectedFile);
+      uploadTask.on('state_changed',
+        function(snap){var pct=Math.round((snap.bytesTransferred/snap.totalBytes)*100);document.getElementById('progressBar').style.width=pct+'%';document.getElementById('progressText').textContent=pct+'%';},
+        function(err){toast('Gagal upload: '+err.message);btn.disabled=false;btn.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Unggah Kartu Keluarga';document.getElementById('uploadProgress').style.display='none';},
+        function(){
+          uploadTask.snapshot.ref.getDownloadURL().then(function(url){
+            db.ref('kartu_keluarga').push({
+              nama:nama,nis:nis,kelas:document.getElementById('kkKelas').value.trim(),
+              keterangan:document.getElementById('kkKet').value.trim(),
+              fileName:selectedFile.name,fileSize:selectedFile.size,fileType:selectedFile.type,
+              url:url,path:filePath,uploadedBy:session.nama||'Siswa',
+              ts:firebase.database.ServerValue.TIMESTAMP
+            }).then(function(){
+              toast('✅ Kartu Keluarga berhasil diunggah!');
+              clearFile();document.getElementById('kkKet').value='';
+              document.getElementById('uploadProgress').style.display='none';
+              btn.disabled=false;btn.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Unggah Kartu Keluarga';
+            });
+          });
+        }
+      );
+    };
+
+    db.ref('kartu_keluarga').orderByChild('ts').limitToLast(20).on('value',function(snap){
+      var el=document.getElementById('riwayatKK');if(!el)return;
+      if(!snap.exists()){el.innerHTML='<p style="font-size:13px;color:#8a9bb0;text-align:center;padding:20px">Belum ada berkas.</p>';return;}
+      var arr=[];snap.forEach(function(c){arr.push(c.val());});arr.reverse();
+      el.innerHTML=arr.map(function(x){
+        var icon=x.fileType==='application/pdf'?'📕':'🖼️';
+        return '<div style="padding:12px;background:var(--soft);border-radius:12px;margin-bottom:10px"><div style="display:flex;align-items:start;gap:10px"><div style="font-size:1.5rem">'+icon+'</div><div style="flex:1"><div style="font-size:0.85rem;font-weight:700">'+x.nama+'</div><div style="font-size:0.72rem;color:#6b7a8e">NIS: '+x.nis+' · '+(x.kelas||'-')+'</div><div style="font-size:0.72rem;color:#8a9bb0;margin-top:2px">'+x.fileName+' ('+(x.fileSize/1024/1024).toFixed(2)+' MB)</div><div style="font-size:0.7rem;color:#8a9bb0;margin-top:4px">📅 '+new Date(x.ts).toLocaleString('id-ID')+'</div></div><a href="'+x.url+'" target="_blank" class="btn btn-outline btn-sm" style="font-size:0.7rem;padding:5px 10px">Lihat</a></div></div>';
+      }).join('');
+    });
+  }
 })();
 </script>
 </body>
