@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Guru BK — Sattva BK</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--navy:#1a2744;--blue:#2c6e9e;--blue2:#4a90c4;--gold:#e8a838;--green:#2d7a4f;--red:#c44536;--soft:#eef4fb;--shadow:0 8px 32px rgba(26,39,68,0.10);--shadow2:0 20px 60px rgba(26,39,68,0.18);--r:1.4rem;--tr:all 0.32s cubic-bezier(0.22,0.9,0.36,1.05);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:linear-gradient(145deg,#dde8f7 0%,#e8f0fb 40%,#f0e8fb 100%);min-height:100vh;color:var(--navy);padding:24px;}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-thumb{background:var(--blue);border-radius:3px;}
+.topbar{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);border-radius:var(--r);padding:12px 24px;margin-bottom:24px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.topbar .logo{display:flex;align-items:center;gap:12px;}
+.topbar .logo-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:12px;display:grid;place-items:center;color:#fff;font-size:20px;}
+.topbar .logo-text{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;}
+.topbar .logo-sub{font-size:10px;color:var(--blue);font-weight:500;}
+.guru-header{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:36px 40px;border-radius:var(--r);margin-bottom:28px;position:relative;overflow:hidden;}
+.guru-header::before{content:'👩‍🏫';position:absolute;right:40px;top:20px;font-size:6rem;opacity:0.08;}
+.guru-header h1{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:6px;}
+.guru-header p{opacity:0.85;font-size:0.9rem;}
+.guru-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px;}
+.stat-card{background:#fff;border-radius:var(--r);padding:20px;box-shadow:var(--shadow);border-left:4px solid var(--blue);transition:var(--tr);}
+.stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow2);}
+.stat-card .icon{font-size:1.8rem;margin-bottom:8px;}
+.stat-card .num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--navy);}
+.stat-card .lbl{font-size:0.8rem;color:#6b7a8e;margin-top:2px;}
+.stat-card.gold{border-left-color:var(--gold);}
+.stat-card.green{border-left-color:var(--green);}
+.stat-card.red{border-left-color:var(--red);}
+.guru-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.guru-tab{padding:9px 18px;border-radius:40px;background:#fff;border:2px solid #e0e8f2;font-family:inherit;font-size:0.82rem;font-weight:700;color:var(--navy);cursor:pointer;transition:var(--tr);}
+.guru-tab:hover{border-color:var(--blue);color:var(--blue);}
+.guru-tab.active{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;border-color:transparent;}
+.forum-post{background:#fff;border-radius:var(--r);border:1px solid #e8eef8;padding:18px 20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.fp-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:10px;}
+.fp-user{display:flex;align-items:center;gap:10px;}
+.fp-avatar{width:34px;height:34px;border-radius:9px;background:#eef4fb;display:grid;place-items:center;font-size:15px;}
+.fp-name{font-size:13px;font-weight:700;}
+.fp-time{font-size:11px;color:#8a9bb0;}
+.fp-tag{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;}
+.fp-text{font-size:0.88rem;line-height:1.65;color:var(--navy);margin-bottom:12px;}
+.data-table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);}
+.data-table th{background:var(--soft);padding:12px 16px;text-align:left;font-size:0.78rem;font-weight:700;color:var(--blue);text-transform:uppercase;}
+.data-table td{padding:12px 16px;font-size:0.85rem;border-bottom:1px solid #f0f4fa;}
+.data-table tr:hover{background:#f8fbff;}
+.badge{padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;display:inline-block;}
+.badge.green{background:#dcfce7;color:#166534;}
+.badge.blue{background:#dbeafe;color:#1e40af;}
+.badge.gold{background:#fef3c7;color:#92400e;}
+.badge.red{background:#fee2e2;color:#991b1b;}
+.btn{padding:8px 16px;border-radius:40px;font-size:0.8rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:var(--tr);display:inline-flex;align-items:center;gap:6px;text-decoration:none;}
+.btn-primary{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;}
+.btn-danger{background:var(--red);color:#fff;}
+.btn-sm{padding:5px 12px;font-size:0.72rem;}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 24px;border-radius:40px;font-size:13px;font-weight:600;z-index:9999;opacity:0;pointer-events:none;transition:opacity 0.3s;}
+.toast.show{opacity:1;}
+h2.tab-title{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:16px;}
+@media(max-width:768px){body{padding:12px;}.guru-header{padding:24px 20px;}.guru-header h1{font-size:1.4rem;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">🌿</div>
+    <div><div class="logo-text">Sattva BK</div><span class="logo-sub">Dashboard Guru BK</span></div>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+    <div style="font-size:0.85rem;color:#6b7a8e;">👩‍🏫 <span id="guruName">Guru BK</span></div>
+    <a class="btn btn-danger" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Keluar</a>
+  </div>
+</div>
+
+<div class="guru-header">
+  <h1>Dashboard Guru BK 👋</h1>
+  <p>Pantau semua aktivitas siswa: forum, cerita anonim, upload KK, mood, konseling rahasia, dan log login.</p>
+</div>
+
+<div class="guru-stats">
+  <div class="stat-card"><div class="icon">👥</div><div class="num" id="statSiswa">0</div><div class="lbl">Total Postingan Forum</div></div>
+  <div class="stat-card gold"><div class="icon">📝</div><div class="num" id="statCerita">0</div><div class="lbl">Cerita Anonim</div></div>
+  <div class="stat-card green"><div class="icon">💬</div><div class="num" id="statForum">0</div><div class="lbl">Postingan Forum</div></div>
+  <div class="stat-card red"><div class="icon">📁</div><div class="num" id="statKK">0</div><div class="lbl">Berkas KK</div></div>
+</div>
+
+<div class="guru-tabs">
+  <button class="guru-tab active" onclick="switchTab('forum',this)">💬 Forum</button>
+  <button class="guru-tab" onclick="switchTab('cerita',this)">📝 Cerita Anonim</button>
+  <button class="guru-tab" onclick="switchTab('kk',this)">📁 Berkas KK</button>
+  <button class="guru-tab" onclick="switchTab('mood',this)">😊 Mood Siswa</button>
+  <button class="guru-tab" onclick="switchTab('konseling',this)">🙏 Konseling</button>
+  <button class="guru-tab" onclick="switchTab('login',this)">🔐 Log Login</button>
+</div>
+
+<div id="tab-forum" class="guru-tab-content"><h2 class="tab-title">💬 Postingan Forum Siswa</h2><div id="guruForumList"><p style="color:#8a9bb0;">🔄 Memuat...</p></div></div>
+<div id="tab-cerita" class="guru-tab-content" style="display:none;"><h2 class="tab-title">📝 Cerita Anonim</h2><div id="guruCeritaList"><p style="color:#8a9bb0;">🔄 Memuat...</p></div></div>
+<div id="tab-kk" class="guru-tab-content" style="display:none;"><h2 class="tab-title">📁 Berkas Kartu Keluarga</h2><div id="guruKKList"><p style="color:#8a9bb0;">🔄 Memuat...</p></div></div>
+<div id="tab-mood" class="guru-tab-content" style="display:none;"><h2 class="tab-title">😊 Mood Siswa</h2><div id="guruMoodList"><p style="color:#8a9bb0;">🔄 Memuat...</p></div></div>
+<div id="tab-konseling" class="guru-tab-content" style="display:none;"><h2 class="tab-title">🙏 Konseling Rahasia</h2><div id="guruKonselingList"><p style="color:#8a9bb0;">🔄 Memuat...</p></div></div>
+<div id="tab-login" class="guru-tab-content" style="display:none;"><h2 class="tab-title">🔐 Log Login</h2><div id="guruLoginList"><p style="color:#8a9bb0;">🔄 Memuat...</p></div></div>
+
+<div class="toast" id="toastEl"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script>
+var firebaseConfig={apiKey:"AIzaSyA7BE6RnsmckUHLLdRGDlzfzdGmwdbsjpk",authDomain:"sattvabk.firebaseapp.com",databaseURL:"https://sattvabk-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"sattvabk",storageBucket:"sattvabk.firebasestorage.app",messagingSenderId:"906874182684",appId:"1:906874182684:web:32830a3220c5818373d3d9"};
+if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+var db=firebase.database();var storage=firebase.storage();
+
+(function(){
+  var s=localStorage.getItem('sattva_session');
+  if(!s){window.location.href='login.html';return;}
+  try{var d=JSON.parse(s);if(d.role!=='guru'){window.location.href='login.html';}else{document.getElementById('guruName').textContent=d.nama||'Guru BK';}}catch(e){window.location.href='login.html';}
+})();
+
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function timeAgo(ts){var diff=Date.now()-(ts||Date.now());var m=Math.floor(diff/60000);var h=Math.floor(diff/3600000);var d=Math.floor(diff/86400000);if(m<1)return"Baru saja";if(m<60)return m+" menit lalu";if(h<24)return h+" jam lalu";return d+" hari lalu";}
+function toast(msg){var t=document.getElementById('toastEl');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3000);}
+function doLogout(){if(confirm('Yakin ingin keluar?')){localStorage.removeItem('sattva_session');window.location.href='login.html';}}
+function switchTab(tab,btn){document.querySelectorAll('.guru-tab').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');document.querySelectorAll('.guru-tab-content').forEach(function(c){c.style.display='none';});document.getElementById('tab-'+tab).style.display='block';}
+var catColors={"Karier & Masa Depan":"#2d7a4f","Kesehatan Mental":"#7c3aed","Masalah Belajar":"#2c6e9e","Relasi & Pertemanan":"#e8a838","Keluarga":"#c44536","Motivasi & Inspirasi":"#e8a838"};
+
+db.ref('forum').orderByChild('ts').limitToLast(100).on('value',function(snap){
+  var el=document.getElementById('guruForumList');var count=0;
+  if(!snap.exists()){el.innerHTML='<p style="color:#8a9bb0;">Belum ada postingan.</p>';document.getElementById('statForum').textContent='0';return;}
+  var arr=[];snap.forEach(function(c){arr.push({key:c.key,val:c.val()});count++;});arr.reverse();
+  document.getElementById('statForum').textContent=count;
+  document.getElementById('statSiswa').textContent=count;
+  el.innerHTML=arr.map(function(x){
+    var p=x.val;var catC=catColors[p.cat]||"#2c6e9e";
+    return '<div class="forum-post"><div class="fp-header"><div class="fp-user"><div class="fp-avatar">'+(p.anon?"🎭":"👤")+'</div><div><div class="fp-name">'+esc(p.anon?"Anonim":(p.name||"Pengguna"))+'</div><div class="fp-time">'+esc(timeAgo(p.ts))+'</div></div></div><span class="fp-tag" style="background:'+catC+'18;color:'+catC+'">'+esc(p.cat)+'</span></div><div class="fp-text">'+esc(p.text)+'</div><div style="display:flex;gap:14px;font-size:0.78rem;color:#8a9bb0;"><span>❤️ '+(p.likes||0)+' suka</span><button class="btn btn-danger btn-sm" onclick="hapusForum(\''+esc(x.key)+'\')">🗑️ Hapus</button></div></div>';
+  }).join('');
+});
+function hapusForum(key){if(confirm('Hapus postingan ini?')){db.ref('forum/'+key).remove().then(function(){toast('Postingan dihapus');});}}
+
+db.ref('cerita_anonim').orderByChild('ts').limitToLast(50).on('value',function(snap){
+  var el=document.getElementById('guruCeritaList');var count=0;
+  if(!snap.exists()){el.innerHTML='<p style="color:#8a9bb0;">Belum ada cerita.</p>';document.getElementById('statCerita').textContent='0';return;}
+  var arr=[];snap.forEach(function(c){arr.push({key:c.key,val:c.val()});count++;});arr.reverse();
+  document.getElementById('statCerita').textContent=count;
+  el.innerHTML=arr.map(function(x){
+    var v=x.val;
+    return '<div style="background:#fff;padding:16px;border-radius:14px;margin-bottom:12px;border-left:4px solid #2c6e9e;box-shadow:var(--shadow);"><div style="font-style:italic;color:#1a2744;">&ldquo;'+esc(v.cerita)+'&rdquo;</div><div style="font-size:0.75rem;color:#8a9bb0;margin-top:8px;">📅 '+esc(v.tgl)+' · '+timeAgo(v.ts)+'</div><button class="btn btn-danger btn-sm" style="margin-top:8px;" onclick="hapusCerita(\''+esc(x.key)+'\')">🗑️ Hapus</button></div>';
+  }).join('');
+});
+function hapusCerita(key){if(confirm('Hapus cerita ini?')){db.ref('cerita_anonim/'+key).remove().then(function(){toast('Cerita dihapus');});}}
+
+db.ref('kartu_keluarga').orderByChild('ts').limitToLast(50).on('value',function(snap){
+  var el=document.getElementById('guruKKList');var count=0;
+  if(!snap.exists()){el.innerHTML='<p style="color:#8a9bb0;">Belum ada berkas KK.</p>';document.getElementById('statKK').textContent='0';return;}
+  var arr=[];snap.forEach(function(c){arr.push({key:c.key,val:c.val()});count++;});arr.reverse();
+  document.getElementById('statKK').textContent=count;
+  el.innerHTML='<div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>Nama</th><th>NIS</th><th>Kelas</th><th>File</th><th>Ukuran</th><th>Tanggal</th><th>Aksi</th></tr></thead><tbody>'+
+    arr.map(function(x){
+      var v=x.val;var icon=v.fileType==='application/pdf'?'📕':'🖼️';
+      return '<tr><td><strong>'+esc(v.nama)+'</strong></td><td>'+esc(v.nis)+'</td><td>'+esc(v.kelas||'-')+'</td><td>'+icon+' '+esc(v.fileName)+'</td><td>'+(v.fileSize/1024/1024).toFixed(2)+' MB</td><td>'+new Date(v.ts).toLocaleString('id-ID')+'</td><td><a href="'+v.url+'" target="_blank" class="btn btn-primary btn-sm">Buka</a> <button class="btn btn-danger btn-sm" onclick="hapusKK(\''+esc(x.key)+'\',\''+esc(v.path)+'\')">Hapus</button></td></tr>';
+    }).join('')+'</tbody></table></div>';
+});
+function hapusKK(key,path){if(!confirm('Hapus berkas KK ini?'))return;storage.ref(path).delete().then(function(){db.ref('kartu_keluarga/'+key).remove().then(function(){toast('Berkas KK dihapus');});}).catch(function(){db.ref('kartu_keluarga/'+key).remove().then(function(){toast('Metadata dihapus');});});}
+
+db.ref('mood_siswa').orderByChild('ts').limitToLast(50).on('value',function(snap){
+  var el=document.getElementById('guruMoodList');
+  if(!snap.exists()){el.innerHTML='<p style="color:#8a9bb0;">Belum ada data mood.</p>';return;}
+  var arr=[];snap.forEach(function(c){arr.push(c.val());});arr.reverse();
+  el.innerHTML='<div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>Siswa</th><th>Kelas</th><th>Mood</th><th>Catatan</th><th>Waktu</th></tr></thead><tbody>'+
+    arr.map(function(x){
+      var color=x.score>=4?'green':x.score>=3?'gold':'red';
+      return '<tr><td>'+esc(x.nama)+'</td><td>'+esc(x.kelas)+'</td><td><span class="badge '+color+'">'+esc(x.emoji)+' '+esc(x.mood)+'</span></td><td>'+esc(x.note||'-')+'</td><td>'+new Date(x.ts).toLocaleString('id-ID')+'</td></tr>';
+    }).join('')+'</tbody></table></div>';
+});
+
+db.ref('konseling_rahasia').orderByChild('ts').limitToLast(50).on('value',function(snap){
+  var el=document.getElementById('guruKonselingList');
+  if(!snap.exists()){el.innerHTML='<p style="color:#8a9bb0;">Belum ada pesan konseling.</p>';return;}
+  var arr=[];snap.forEach(function(c){arr.push({key:c.key,val:c.val()});});arr.reverse();
+  el.innerHTML=arr.map(function(x){
+    var v=x.val;
+    return '<div style="background:#fff;padding:16px;border-radius:14px;margin-bottom:12px;border-left:4px solid #e8a838;box-shadow:var(--shadow);"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;"><div><strong>'+esc(v.nama)+'</strong> · <span class="badge blue">'+esc(v.bidang)+'</span></div><div style="font-size:0.75rem;color:#8a9bb0;">'+timeAgo(v.ts)+'</div></div><div style="margin-top:8px;font-size:0.88rem;color:#1a2744;">'+esc(v.pesan)+'</div>'+(v.kontak?'<div style="margin-top:8px;font-size:0.75rem;color:#2c6e9e;">📞 '+esc(v.kontak)+'</div>':'')+'<div style="margin-top:8px;font-size:0.72rem;color:#8a9bb0;">NIS: '+esc(v.nis||'-')+' · Kelas: '+esc(v.kelas||'-')+'</div><button class="btn btn-danger btn-sm" style="margin-top:8px;" onclick="hapusKonseling(\''+esc(x.key)+'\')">🗑️ Hapus</button></div>';
+  }).join('');
+});
+function hapusKonseling(key){if(confirm('Hapus pesan konseling ini?')){db.ref('konseling_rahasia/'+key).remove().then(function(){toast('Pesan dihapus');});}}
+
+db.ref('login_log').orderByChild('ts').limitToLast(50).on('value',function(snap){
+  var el=document.getElementById('guruLoginList');
+  if(!snap.exists()){el.innerHTML='<p style="color:#8a9bb0;">Belum ada log login.</p>';return;}
+  var arr=[];snap.forEach(function(c){arr.push(c.val());});arr.reverse();
+  el.innerHTML='<div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>User</th><th>Role</th><th>Waktu</th></tr></thead><tbody>'+
+    arr.map(function(x){return '<tr><td>'+esc(x.user)+'</td><td><span class="badge '+(x.role==='siswa'?'blue':'green')+'">'+esc(x.role)+'</span></td><td>'+new Date(x.ts).toLocaleString('id-ID')+'</td></tr>';}).join('')+'</tbody></table></div>';
+});
+</script>
+</body>
+</html>
